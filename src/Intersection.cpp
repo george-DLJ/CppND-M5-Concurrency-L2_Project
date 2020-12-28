@@ -63,6 +63,15 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
 
     // L2.2 : First, add the new vehicle to the waiting line by creating a promise, a corresponding future and then adding both to _waitingVehicles. 
     // Then, wait until the vehicle has been granted entry. 
+    // step 1: create promise: NOTE: see pushBack signature to know the type. In this case void;
+    std::promise<void> prms; 
+    // step 2: create a future from that promise
+    std::future<void> ftr = prms.get_future();
+    // step 3: enqueue the veicle (shared_ptr) and move the promise() to _waitingVehicles vector:
+    _waitingVehicles.pushBack(vehicle,std::move(prms));
+    // step 4: wait until future is fulfilled:
+    ftr.wait();
+
 
     std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID() << " is granted entry." << std::endl;
 }
