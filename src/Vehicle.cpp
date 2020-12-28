@@ -78,6 +78,17 @@ void Vehicle::drive()
                 // the object _currDestination and a shared pointer to this using the get_shared_this() function. 
                 // Then, wait for the data to be available before proceeding to slow down.
 
+                // step 1. Create future: 
+                // Called function signature: void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
+                // NOTE: we are calling a memberfunction (of a class):
+                //  - std::launch::async is optional
+                //  - '&' is mandatory for member functions but is optional for free functions!
+                //  
+                std::future<void> ftr = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
+                // Alternative: 
+                // auto ftr = std::async(std::launch::async, &Intersection::addVehicleToQueue,_currDestination, get_shared_this());
+                // Step 2. wait data to be ready
+                ftr.wait();
                 // slow down and set intersection flag
                 _speed /= 10.0;
                 hasEnteredIntersection = true;
