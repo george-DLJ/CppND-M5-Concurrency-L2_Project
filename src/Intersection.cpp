@@ -26,6 +26,32 @@ void WaitingVehicles::permitEntryToFirstInQueue()
     // L2.3 : First, get the entries from the front of _promises and _vehicles. 
     // Then, fulfill promise and send signal back that permission to enter has been granted.
     // Finally, remove the front elements from both queues. 
+    // Alternative 1: (using front())
+    //  Step 1: get entries from front of vectors _promises and _vehicles:
+    std::promise<void> &prms = _promises.front();
+    std::shared_ptr<Vehicle> v = _vehicles.front();
+
+    //  Step 2: Fulfill promise:
+    prms.set_value();
+    
+    //  Step 3: remove front elements from both queues
+    _promises.erase(_promises.begin());
+    _vehicles.erase(_vehicles.begin());
+
+    // // Alternative 2: use iterator locals:
+    // //  Step 1: get entries from front of vectors _promises and _vehicles:
+    // auto prms_it = _promises.begin(); //prms iterator
+    // auto v_it = _vehicles.begin();//vehicle iterator
+    // //  Step 2: Fulfill promise:
+    // prms_it->set_value();
+    // //  Step 3: remove the front elements:
+    // _promises.erase(prms_it);
+    // _vehicles.erase(v_it);
+
+    // // Alternative 3: way whithout locals: (Steps 1-3 together)
+    // _promises.front().set_value();
+    // _promises.erase(_promises.begin());
+    // _vehicles.erase(_vehicles.begin());
 }
 
 /* Implementation of class "Intersection" */
@@ -63,6 +89,7 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
 
     // L2.2 : First, add the new vehicle to the waiting line by creating a promise, a corresponding future and then adding both to _waitingVehicles. 
     // Then, wait until the vehicle has been granted entry. 
+    // NOTE: IMPORTANT! the thread will be created on Task L2.3!
     // step 1: create promise: NOTE: see pushBack signature to know the type. In this case void;
     std::promise<void> prms; 
     // step 2: create a future from that promise
